@@ -25,6 +25,8 @@ objects:
   kind: ImageStream
   metadata:
     name: web-ui
+    labels:
+      application: web-ui
   spec:
     tags:
     - name: latest
@@ -32,6 +34,8 @@ objects:
   kind: BuildConfig
   metadata:
     name: web-ui
+    labels:
+      application: web-ui
   spec:
     output:
       to:
@@ -58,6 +62,8 @@ objects:
   kind: DeploymentConfig
   metadata:
     name: web-ui
+    labels:
+      application: web-ui
   spec:
     replicas: 1
     selector:
@@ -125,6 +131,7 @@ objects:
   metadata:
     labels:
       app: web-ui
+      application: web-ui
     name: web-ui
   spec:
     ports:
@@ -147,6 +154,8 @@ objects:
   kind: ImageStream
   metadata:
     name: fis-java-openshift
+    labels:
+      application: coolstore-gw
   spec:
     dockerImageRepository: registry.access.redhat.com/jboss-fuse-6-tech-preview/fis-java-openshift
     tags:
@@ -161,6 +170,8 @@ objects:
   kind: ImageStream
   metadata:
     name: coolstore-gw
+    labels:
+      application: coolstore-gw
   spec: {}
   status:
     dockerImageRepository: ""
@@ -168,6 +179,8 @@ objects:
   kind: BuildConfig
   metadata:
     name: coolstore-gw
+    labels:
+      application: coolstore-gw
   spec:
     output:
       to:
@@ -199,6 +212,8 @@ objects:
   kind: DeploymentConfig
   metadata:
     name: coolstore-gw
+    labels:
+      application: coolstore-gw
   spec:
     replicas: 1
     selector:
@@ -250,6 +265,7 @@ objects:
   metadata:
     labels:
       app: coolstore-gw
+      application: coolstore-gw
       hystrix.enabled: true
     name: coolstore-gw
   spec:
@@ -263,6 +279,8 @@ objects:
   kind: Route
   metadata:
     name: coolstore-gw
+    labels:
+      application: coolstore-gw
   spec:
     to:
       kind: Service
@@ -271,19 +289,23 @@ objects:
 - apiVersion: v1
   kind: ImageStream
   metadata:
-    name: inventory-service
+    name: inventory
+    labels:
+      application: inventory
   spec:
     tags:
     - name: latest
 - apiVersion: v1
   kind: BuildConfig
   metadata:
-    name: inventory-service
+    name: inventory
+    labels:
+      application: inventory
   spec:
     output:
       to:
         kind: ImageStreamTag
-        name: inventory-service:latest
+        name: inventory:latest
     source:
       contextDir: inventory-service
       git:
@@ -307,25 +329,27 @@ objects:
 - apiVersion: v1
   kind: DeploymentConfig
   metadata:
-    name: inventory-service
+    name: inventory
+    labels:
+      application: inventory
   spec:
     replicas: 1
     selector:
-      deploymentconfig: inventory-service
+      deploymentconfig: inventory
     strategy:
       resources: {}
       type: Recreate
     template:
       metadata:
         labels:
-          application: inventory-service
-          deploymentconfig: inventory-service
-        name: inventory-service
+          application: inventory
+          deploymentconfig: inventory
+        name: inventory
       spec:
         containers:
         - env:
           - name: OPENSHIFT_KUBE_PING_LABELS
-            value: application=inventory-service
+            value: application=inventory
           - name: OPENSHIFT_KUBE_PING_NAMESPACE
             valueFrom:
               fieldRef:
@@ -346,7 +370,7 @@ objects:
             value: ${INVENTORY_DB_PASSWORD}
           - name: DB_DATABASE
             value: inventorydb
-          image: inventory-service
+          image: inventory
           imagePullPolicy: Always
           lifecycle:
             preStop:
@@ -365,7 +389,7 @@ objects:
             periodSeconds: 5
             successThreshold: 1
             timeoutSeconds: 5
-          name: inventory-service
+          name: inventory
           ports:
           - containerPort: 8778
             name: jolokia
@@ -400,10 +424,10 @@ objects:
     - imageChangeParams:
         automatic: true
         containerNames:
-        - inventory-service
+        - inventory
         from:
           kind: ImageStreamTag
-          name: inventory-service:latest
+          name: inventory:latest
       type: ImageChange
     - type: ConfigChange
 - apiVersion: v1
@@ -412,19 +436,22 @@ objects:
     annotations:
       service.alpha.openshift.io/dependencies: '[{"name":"inventory-postgresql","namespace":"","kind":"Service"}]'
     labels:
-      app: inventory-service
-    name: inventory-service
+      app: inventory
+      application: inventory
+    name: inventory
   spec:
     ports:
     - port: 8080
       protocol: TCP
       targetPort: 8080
     selector:
-      deploymentconfig: inventory-service
+      deploymentconfig: inventory
 - apiVersion: v1
   kind: DeploymentConfig
   metadata:
     name: inventory-postgresql
+    labels:
+      application: inventory
   spec:
     replicas: 1
     selector:
@@ -434,7 +461,7 @@ objects:
     template:
       metadata:
         labels:
-          application: inventory-service
+          application: inventory
           deploymentconfig: inventory-postgresql
         name: inventory-postgresql
       spec:
@@ -488,7 +515,8 @@ objects:
   kind: Service
   metadata:
     labels:
-      application: inventory-service
+      app: inventory
+      application: inventory
     name: inventory-postgresql
   spec:
     ports:
@@ -500,19 +528,21 @@ objects:
 - apiVersion: v1
   kind: ImageStream
   metadata:
-    name: catalog-service
+    name: catalog
+    labels:
+      application: catalog
   spec:
     tags:
     - name: latest
 - apiVersion: v1
   kind: BuildConfig
   metadata:
-    name: catalog-service
+    name: catalog
   spec:
     output:
       to:
         kind: ImageStreamTag
-        name: catalog-service:latest
+        name: catalog:latest
     source:
       contextDir: catalog-service
       git:
@@ -536,20 +566,22 @@ objects:
 - apiVersion: v1
   kind: DeploymentConfig
   metadata:
-    name: catalog-service
+    name: catalog
+    labels:
+      application: catalog
   spec:
     replicas: 1
     selector:
-      deploymentconfig: catalog-service
+      deploymentconfig: catalog
     strategy:
       resources: {}
       type: Recreate
     template:
       metadata:
         labels:
-          application: catalog-service
-          deploymentconfig: catalog-service
-        name: catalog-service
+          application: catalog
+          deploymentconfig: catalog
+        name: catalog
       spec:
         containers:
         - env:
@@ -565,9 +597,9 @@ objects:
             value: catalogdb
           - name: DB_SERVER
             value: catalog-mongodb
-          image: catalog-service
+          image: catalog
           imagePullPolicy: Always
-          name: catalog-service
+          name: catalog
           ports:
           - containerPort: 8778
             name: jolokia
@@ -601,10 +633,10 @@ objects:
     - imageChangeParams:
         automatic: true
         containerNames:
-        - catalog-service
+        - catalog
         from:
           kind: ImageStreamTag
-          name: catalog-service:latest
+          name: catalog:latest
       type: ImageChange
     - type: ConfigChange
 - apiVersion: v1
@@ -613,20 +645,22 @@ objects:
     annotations:
       service.alpha.openshift.io/dependencies: '[{"name":"catalog-mongodb","namespace":"","kind":"Service"}]'
     labels:
-      app: catalog-service
-    name: catalog-service
+      app: catalog
+      application: catalog
+    name: catalog
   spec:
     ports:
     - port: 8080
       protocol: TCP
       targetPort: 8080
     selector:
-      deploymentconfig: catalog-service
+      deploymentconfig: catalog
 - apiVersion: v1
   kind: Service
   metadata:
     labels:
-      app: catalog-service
+      app: catalog
+      application: catalog
     name: catalog-mongodb
   spec:
     ports:
@@ -642,7 +676,7 @@ objects:
   kind: DeploymentConfig
   metadata:
     labels:
-      app: catalog-service
+      application: catalog
     name: catalog-mongodb
   spec:
     replicas: 1
@@ -656,7 +690,7 @@ objects:
     template:
       metadata:
         labels:
-          application: catalog-service
+          application: catalog
           deploymentconfig: catalog-mongodb
       spec:
         containers:
@@ -733,19 +767,23 @@ objects:
 - apiVersion: v1
   kind: ImageStream
   metadata:
-    name: cart-service
+    name: cart
+    labels:
+      application: cart
   spec:
     tags:
     - name: latest
 - apiVersion: v1
   kind: BuildConfig
   metadata:
-    name: cart-service
+    name: cart
+    labels:
+      application: cart
   spec:
     output:
       to:
         kind: ImageStreamTag
-        name: cart-service:latest
+        name: cart:latest
     source:
       contextDir: cart-service-eap
       git:
@@ -769,25 +807,27 @@ objects:
 - apiVersion: v1
   kind: DeploymentConfig
   metadata:
-    name: cart-service
+    name: cart
+    labels:
+      application: cart
   spec:
     replicas: 1
     selector:
-      deploymentconfig: cart-service
+      deploymentconfig: cart
     strategy:
       resources: {}
       type: Recreate
     template:
       metadata:
         labels:
-          application: cart-service
-          deploymentconfig: cart-service
-        name: cart-service
+          application: cart
+          deploymentconfig: cart
+        name: cart
       spec:
         containers:
         - env:
           - name: OPENSHIFT_KUBE_PING_LABELS
-            value: application=cart-service
+            value: application=cart
           - name: OPENSHIFT_KUBE_PING_NAMESPACE
             valueFrom:
               fieldRef:
@@ -798,7 +838,7 @@ objects:
             value: ZPiKvsqZ9K
           - name: AUTO_DEPLOY_EXPLODED
             value: "false"
-          image: cart-service
+          image: cart
           imagePullPolicy: Always
           lifecycle:
             preStop:
@@ -817,7 +857,7 @@ objects:
             periodSeconds: 5
             successThreshold: 1
             timeoutSeconds: 5
-          name: cart-service
+          name: cart
           ports:
           - containerPort: 8778
             name: jolokia
@@ -852,25 +892,26 @@ objects:
     - imageChangeParams:
         automatic: true
         containerNames:
-        - cart-service
+        - cart
         from:
           kind: ImageStreamTag
-          name: cart-service:latest
+          name: cart:latest
       type: ImageChange
     - type: ConfigChange
 - apiVersion: v1
   kind: Service
   metadata:
     labels:
-      app: cart-service
-    name: cart-service
+      app: cart
+      application: cart
+    name: cart
   spec:
     ports:
     - port: 8080
       protocol: TCP
       targetPort: 8080
     selector:
-      deploymentconfig: cart-service
+      deploymentconfig: cart
 # Netflix Turbine Server
 - apiVersion: v1
   kind: ImageStream
@@ -956,6 +997,7 @@ objects:
   metadata:
     labels:
       app: turbine-server
+      application: turbine-server
     name: turbine-server
   spec:
     ports:
@@ -1059,6 +1101,7 @@ objects:
   metadata:
     labels:
       app: hystrix-dashboard
+      application: hystrix-dashboard
     annotations:
       service.alpha.openshift.io/dependencies: '[{"name":"turbine-server","namespace":"","kind":"Service"}]'
     name: hystrix-dashboard
