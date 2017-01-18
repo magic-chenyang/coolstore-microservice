@@ -86,7 +86,7 @@ done
 OPENSHIFT_MASTER=${ARG_OPENSHIFT_MASTER}
 
 # project
-PRJ_SUFFIX=${ARG_PROJECT_SUFFIX:-`echo $ARG_USERNAME | sed -e 's/-.*//g'`}
+PRJ_SUFFIX=${ARG_PROJECT_SUFFIX:-`echo $ARG_USERNAME | sed -e 's/[-@].*//g'`}
 PRJ_LABEL=demo1-$PRJ_SUFFIX
 PRJ_CI=ci-$PRJ_SUFFIX
 PRJ_COOLSTORE_TEST=coolstore-test-$PRJ_SUFFIX
@@ -387,7 +387,7 @@ function build_and_tag_images_for_ci() {
     while [ -z "$(oc get builds -l buildconfig=$buildconfig -n $PRJ_COOLSTORE_TEST | grep 'Complete')" ]
     do
       # if build has failed, let's give it another shot
-      if [ ! -z "$(oc get builds -l buildconfig=$buildconfig -n $PRJ_COOLSTORE_TEST | grep 'Failed')" ] && [ -z "_BUILD_RETRIED_$buildconfig" ]
+      if [ ! -z "$(oc get builds -l buildconfig=$buildconfig -n $PRJ_COOLSTORE_TEST | grep 'Failed')" ] && [ "$(eval echo \$_BUILD_RETRIED_$buildconfig)" == '' ]
       then
         oc start-build $buildconfig -n $PRJ_COOLSTORE_TEST
         eval local _BUILD_RETRIED_$buildconfig=true
@@ -455,11 +455,13 @@ EOM
 }
 
 function set_permissions() {
-  oc adm policy add-role-to-user admin $ARG_USERNAME -n $PRJ_COOLSTORE_TEST
-  oc adm policy add-role-to-user admin $ARG_USERNAME -n $PRJ_DEVELOPER
-  oc adm policy add-role-to-user admin $ARG_USERNAME -n $PRJ_COOLSTORE_PROD
-  oc adm policy add-role-to-user admin $ARG_USERNAME -n $PRJ_INVENTORY
-  oc adm policy add-role-to-user admin $ARG_USERNAME -n $PRJ_CI
+  if [ "$(oc whoami)" != "$ARG_USERNAME" ] ; then
+    oc adm policy add-role-to-user admin $ARG_USERNAME -n $PRJ_COOLSTORE_TEST
+    oc adm policy add-role-to-user admin $ARG_USERNAME -n $PRJ_DEVELOPER
+    oc adm policy add-role-to-user admin $ARG_USERNAME -n $PRJ_COOLSTORE_PROD
+    oc adm policy add-role-to-user admin $ARG_USERNAME -n $PRJ_INVENTORY
+    oc adm policy add-role-to-user admin $ARG_USERNAME -n $PRJ_CI
+  fi
 
   oc adm policy add-role-to-group admin system:serviceaccounts:$PRJ_CI -n $PRJ_COOLSTORE_TEST
   oc adm policy add-role-to-group admin system:serviceaccounts:$PRJ_CI -n $PRJ_DEVELOPER
