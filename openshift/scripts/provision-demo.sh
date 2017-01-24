@@ -519,6 +519,7 @@ create_infra_project
 deploy_gogs
 deploy_nexus
 deploy_jenkins
+deploy_demo_guides
 create_app_projects
 add_inventory_template_to_projects
 wait_for_nexus_to_be_ready
