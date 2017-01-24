@@ -535,7 +535,6 @@ deploy_inventory_dev_env
 build_and_tag_images_for_ci
 deploy_pipeline
 verify_deployments
-deploy_demo_guides
 
 set_default_project
 set_permissions
