@@ -489,7 +489,7 @@ function verify_deployments() {
 function deploy_demo_guides() {
   echo_header "Deploying Demo Guides"
 
-  local _DEMO_REPO="https://raw.githubusercontent.com/osevg/workshopper-content/master/demos"
+  local _DEMO_REPO="https://raw.githubusercontent.com/osevg/workshopper-content/stable-ocp-3.3/demos"
   local _DEMOS="$_DEMO_REPO/_demo-msa.yml,$_DEMO_REPO/_demo-agile-integration.yml"
 
   oc new-app --name=guides jboss-eap70-openshift~https://github.com/osevg/workshopper.git -n $PRJ_CI
