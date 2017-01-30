@@ -74,12 +74,11 @@ objects:
             timeoutSeconds: 1
           resources:
             limits:
-              cpu: 100m
-              memory: 256Mi
+              cpu: 200m
+              memory: 512Mi
             requests:
               cpu: 50m
               memory: 128Mi
-          resources: {}
           terminationMessagePath: /dev/termination-log
         dnsPolicy: ClusterFirst
         restartPolicy: Always
@@ -171,8 +170,8 @@ objects:
             initialDelaySeconds: 10
           resources:
             limits:
-              cpu: 100m
-              memory: 600Mi
+              cpu: 1
+              memory: 1Gi
             requests:
               cpu: 50m
               memory: 256Mi
@@ -299,11 +298,11 @@ objects:
             timeoutSeconds: 1
           resources:
             limits:
-              cpu: 100m
+              cpu: 1
               memory: 1Gi
             requests:
               cpu: 50m
-              memory: 256Mi
+              memory: 512Mi
           terminationMessagePath: /dev/termination-log
         dnsPolicy: ClusterFirst
         restartPolicy: Always
@@ -399,11 +398,11 @@ objects:
             timeoutSeconds: 1
           resources:
             limits:
-              cpu: 100m
+              cpu: 500m
               memory: 512Mi
             requests:
-              cpu: 50m
-              memory: 512Mi
+              cpu: 100m
+              memory: 256Mi
         terminationGracePeriodSeconds: 60
         volumes:
         - name: inventory-postgresql-data
@@ -443,7 +442,7 @@ objects:
     - ReadWriteOnce
     resources:
       requests:
-        storage: 512Mi
+        storage: 1Gi
 # Catalog Service
 - apiVersion: v1
   kind: DeploymentConfig
@@ -503,10 +502,10 @@ objects:
             timeoutSeconds: 1
           resources:
             limits:
-              cpu: 100m
-              memory: 512Mi
+              cpu: 1
+              memory: 1Gi
             requests:
-              cpu: 50m
+              cpu: 100m
               memory: 256Mi
           terminationMessagePath: /dev/termination-log
         dnsPolicy: ClusterFirst
@@ -632,11 +631,11 @@ objects:
             timeoutSeconds: 1
           resources:
             limits:
-              cpu: 100m
-              memory: 512Mi
+              cpu: 500m
+              memory: 1Gi
             requests:
-              cpu: 50m
-              memory: 512Mi
+              cpu: 100m
+              memory: 256Mi
           securityContext:
             capabilities: {}
             privileged: false
@@ -675,7 +674,7 @@ objects:
     - ReadWriteOnce
     resources:
       requests:
-        storage: 512Mi
+        storage: 1Gi
 # Cart Service
 - apiVersion: v1
   kind: DeploymentConfig
@@ -755,10 +754,10 @@ objects:
             timeoutSeconds: 1
           resources:
             limits:
-              cpu: 100m
+              cpu: 1
               memory: 1Gi
             requests:
-              cpu: 50m
+              cpu: 100m
               memory: 256Mi
           terminationMessagePath: /dev/termination-log
         dnsPolicy: ClusterFirst
